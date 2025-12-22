@@ -15,6 +15,7 @@
 
 load("@com_google_protobuf//bazel/common:proto_common.bzl", "proto_common")
 load("@com_google_protobuf//bazel/common:proto_lang_toolchain_info.bzl", "ProtoLangToolchainInfo")
+load("//bazel/toolchains:plugins.bzl", "GrpcPluginInfo")
 load("@com_google_protobuf//bazel:py_proto_library.bzl", protobuf_py_proto_library = "py_proto_library")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load("@rules_python//python:py_info.bzl", "PyInfo")
@@ -185,7 +186,8 @@ def _generate_pb2_grpc_src_impl(context):
     protos = proto_info.direct_sources
 
     out_files = declare_out_files(protos, context, _GENERATED_GRPC_PROTO_FORMAT)
-    plugin_flags = ["grpc_2_0"] + context.attr.strip_prefixes
+
+    plugin_flags = ["grpc_2_0"] + context.attr.strip_prefixes + context.attr._grpc_python_plugin[GrpcPluginInfo].options
 
     out_dir = get_out_dir(protos, context)
     if out_dir.import_path:
@@ -260,6 +262,12 @@ _generate_pb2_grpc_src = rule(
         "_grpc_python_toolchain": attr.label(
             default = Label("//bazel/toolchains:grpc_python_toolchain"),
             providers = [ProtoLangToolchainInfo],
+        ),
+        # Referenced only to read GrpcPluginInfo.options; the plugin executable
+        # and its runfiles reach protoc via _grpc_python_toolchain.
+        "_grpc_python_plugin": attr.label(
+            default = Label("//bazel/private:resolved_grpc_python_plugin"),
+            cfg = "exec",
         ),
     },
     implementation = _generate_pb2_grpc_src_impl,

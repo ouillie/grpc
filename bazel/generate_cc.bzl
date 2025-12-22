@@ -19,6 +19,7 @@ directly.
 
 load("@com_google_protobuf//bazel/common:proto_lang_toolchain_info.bzl", "ProtoLangToolchainInfo")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
+load("//bazel/toolchains:plugins.bzl", "GrpcPluginInfo")
 load(
     "//bazel:protobuf.bzl",
     "get_include_directory",
@@ -116,14 +117,17 @@ def generate_cc_impl(ctx):
 
     arguments = []
     if ctx.executable.plugin:
+        plugin_options = ctx.attr.flags
+        if GrpcPluginInfo in ctx.attr.plugin:
+            plugin_options = plugin_options + ctx.attr.plugin[GrpcPluginInfo].options
         arguments += get_plugin_args(
             ctx.executable.plugin,
-            ctx.attr.flags,
+            plugin_options,
             output_dir,
             ctx.attr.generate_mocks,
             ctx.attr.allow_deprecated,
         )
-        tools = [ctx.executable.plugin]
+        tools = [ctx.attr.plugin[DefaultInfo].files_to_run]
     else:
         arguments.append("--cpp_out=" + ",".join(ctx.attr.flags) + ":" + output_dir)
         tools = []

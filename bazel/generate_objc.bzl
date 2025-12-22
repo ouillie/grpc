@@ -18,6 +18,7 @@ This module contains build rules relating to gRPC Objective-C.
 
 load("@com_google_protobuf//bazel/common:proto_lang_toolchain_info.bzl", "ProtoLangToolchainInfo")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
+load("//bazel/toolchains:plugins.bzl", "GrpcPluginInfo")
 load(
     "//bazel:protobuf.bzl",
     "get_include_directory",
@@ -68,13 +69,16 @@ def _generate_objc_impl(ctx):
     arguments = []
     tools = []
     if ctx.executable.plugin:
+        plugin_options = []
+        if GrpcPluginInfo in ctx.attr.plugin:
+            plugin_options = ctx.attr.plugin[GrpcPluginInfo].options
         arguments += get_plugin_args(
             ctx.executable.plugin,
-            [],
+            plugin_options,
             dir_out,
             False,
         )
-        tools = [ctx.executable.plugin]
+        tools = [ctx.attr.plugin[DefaultInfo].files_to_run]
     arguments.append("--objc_out=" + dir_out)
 
     arguments.append("--proto_path=.")
@@ -164,7 +168,7 @@ generate_objc = rule(
             providers = [ProtoInfo],
         ),
         "plugin": attr.label(
-            default = Label("//src/compiler:grpc_objective_c_plugin"),
+            default = Label("//bazel/private:resolved_grpc_objective_c_plugin"),
             executable = True,
             providers = ["files_to_run"],
             cfg = "exec",
