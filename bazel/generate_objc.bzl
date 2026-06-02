@@ -16,7 +16,6 @@
 This module contains build rules relating to gRPC Objective-C.
 """
 
-load("//bazel/private:proto_toolchain_helpers.bzl", "toolchains")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(
     "//bazel:protobuf.bzl",
@@ -24,6 +23,7 @@ load(
     "get_plugin_args",
     "proto_path_to_generated_filename",
 )
+load("//bazel/private:proto_toolchain_helpers.bzl", "toolchains")
 load(":grpc_util.bzl", "to_upper_camel_with_extension")
 
 _GRPC_PROTO_HEADER_FMT = "{}.pbrpc.h"
