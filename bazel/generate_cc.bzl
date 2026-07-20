@@ -17,7 +17,6 @@ This is an internal rule used by cc_grpc_library, and shouldn't be used
 directly.
 """
 
-load("//bazel/private:proto_toolchain_helpers.bzl", "toolchains")
 load("@rules_proto//proto:defs.bzl", "ProtoInfo")
 load(
     "//bazel:protobuf.bzl",
@@ -29,6 +28,7 @@ load(
     "is_in_virtual_imports",
     "proto_path_to_generated_filename",
 )
+load("//bazel/private:proto_toolchain_helpers.bzl", "toolchains")
 
 _GRPC_PROTO_HEADER_FMT = "{}.grpc.pb.h"
 _GRPC_PROTO_SRC_FMT = "{}.grpc.pb.cc"
