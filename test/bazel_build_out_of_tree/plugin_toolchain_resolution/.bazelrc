@@ -1,0 +1,11 @@
+common --incompatible_enable_proto_toolchain_resolution
+common --@protobuf//bazel/toolchains:prefer_prebuilt_protoc=true
+
+# In addition to resolving `protoc` via the toolcahin,
+# also resolve all gRPC Protobuf plugins via toolchains.
+# Doing so enables eliminating Protobuf source builds.
+common --@grpc//bazel/toolchains:enable_grpc_plugin_toolchain_resolution=true
+
+# generate_objc.bzl still returns a legacy struct provider from its rule
+# implementation, which Bazel 8 rejects by default.
+build --incompatible_disallow_struct_provider_syntax=false
